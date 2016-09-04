@@ -1,0 +1,6 @@
+<!-- views/index.erb -->
+<ul>
+  <% @files.each do |filename| %>
+    <li><a href="/<%= filename %>"><%= filename %></a></li>
+  <% end %>
+</ul>
