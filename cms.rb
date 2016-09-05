@@ -3,6 +3,20 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'tilt/erubis'
+require 'sinatra/flash'
+require 'redcarpet'
+
+configure do
+  enable :sessions
+  set :session_secret, 'secret'
+end
+
+helpers do
+  def render_markdown(content)
+    markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    markdown.render(content)
+  end
+end
 
 get '/' do
   @files = Dir.glob("data/*").map { |file| File.basename(file) }
@@ -11,10 +25,38 @@ get '/' do
   erb :index
 end
 
-get '/:filename' do
+get "/:filename" do
   filename = params['filename']
-  @file_content = File.read("data/#{filename}")
+  @files = Dir.glob("data/*").map { |file| File.basename(file) }
 
-  headers "Content-Type" => 'text/plain'
-  erb :file, layout: false
+  if @files.include?(filename)
+    @file_content = File.read("data/#{filename}")
+    @file_content = render_markdown(@file_content) if filename.include?('.md')
+
+    headers "Content-Type" => 'text/plain'
+    erb :file, layout: false
+  else
+    session[:error] = "#{filename} does not exist."
+    redirect "/"
+  end
+end
+
+get "/edit/:filename" do
+  @filename = params['filename']
+  @files = Dir.glob("data/*").map { |file| File.basename(file) }
+
+  if @files.include?(@filename)
+    @file_content = File.read("data/#{@filename}")
+
+    erb :edit, layout: :layout
+  else
+    session[:error] = "#{@filename} does not exist."
+    redirect "/"
+  end
+end
+
+post "/edit/:filename" do
+  File.write("data/#{params['filename']}", params['content'])
+  session[:success] = "#{params['filename']} was updated."
+  redirect "/"
 end
