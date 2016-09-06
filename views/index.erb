@@ -1,9 +1,9 @@
 <!-- views/index.erb -->
 <% if session[:error] %>
-    <p><%= session.delete(:error) %></p>
+    <p class="message"><%= session.delete(:error) %></p>
 <% end %>
 <% if session[:success] %>
-    <p><%= session.delete(:success) %></p>
+    <p class="message"><%= session.delete(:success) %></p>
 <% end %>
 <ul>
   <% @files.each do |filename| %>
