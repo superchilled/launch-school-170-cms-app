@@ -16,10 +16,14 @@ helpers do
     markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
     markdown.render(content)
   end
+
+  def get_files(directory)
+    Dir.glob("#{directory}/*").map { |file| File.basename(file) }
+  end
 end
 
 get '/' do
-  @files = Dir.glob("data/*").map { |file| File.basename(file) }
+  @files = get_files('data')
   @files.sort!
 
   erb :index
@@ -27,7 +31,7 @@ end
 
 get "/:filename" do
   filename = params['filename']
-  @files = Dir.glob("data/*").map { |file| File.basename(file) }
+  @files = get_files('data')
 
   if @files.include?(filename)
     @file_content = File.read("data/#{filename}")
@@ -43,7 +47,7 @@ end
 
 get "/edit/:filename" do
   @filename = params['filename']
-  @files = Dir.glob("data/*").map { |file| File.basename(file) }
+  @files = get_files('data')
 
   if @files.include?(@filename)
     @file_content = File.read("data/#{@filename}")
