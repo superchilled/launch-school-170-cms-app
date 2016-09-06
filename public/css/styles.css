@@ -5,3 +5,7 @@
 .message {
   background-color: yellow;
 }
+
+textarea, input {
+  display: block;
+}

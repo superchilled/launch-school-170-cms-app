@@ -37,6 +37,22 @@ get '/' do
   erb :index
 end
 
+get "/new" do
+  erb :new, layout: :layout
+end
+
+post "/new" do
+  filename = params['filename'].to_s
+  if filename.size == 0
+    session[:error] = "A name is required."
+    redirect "/new"
+  else
+    File.open(File.join(data_path, params['filename']), "w")
+    session[:success] = "#{params['filename']} has been created."
+    redirect "/"
+  end
+end
+
 get "/:filename" do
   filename = params['filename']
   @files = get_files(data_path)
