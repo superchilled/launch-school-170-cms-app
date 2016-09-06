@@ -58,16 +58,22 @@ class AppTest < Minitest::Test
     get "/edit/markdown.md"
 
     assert_equal 200, last_response.status
-    assert_includes last_response.body, "<textarea># This is a h1"
+    assert_includes last_response.body, "<textarea name=\"content\" cols=\"80\" rows=\"20\"># This is a h1"
+  end
 
-    post "/edit/markdown.md"
+  def test_update_file
+    post "/edit/about.txt", content: "This is a file-based CMS application built with Ruby and Sinatra. Some new content"
 
     get last_response["Location"]
 
-    assert_includes last_response.body, "markdown.md was updated."
+    assert_includes last_response.body, "about.txt was updated."
 
     get "/"
 
-    refute_includes last_response.body, "markdown.md was updated."
+    refute_includes last_response.body, "about.txt was updated."
+
+    get "about.txt"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Some new content"
   end
 end
