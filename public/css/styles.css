@@ -9,3 +9,7 @@
 textarea, input {
   display: block;
 }
+
+form.inline {
+  display: inline;
+}

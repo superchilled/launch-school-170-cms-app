@@ -124,4 +124,26 @@ class AppTest < Minitest::Test
     get last_response["Location"]
     assert_includes last_response.body, "A name is required."
   end
+
+  def test_deletion_button
+    create_document "delete_me.txt"
+    get "/"
+    assert_equal 200, last_response.status
+
+    assert_includes last_response.body, "<a href=\"/delete_me.txt\">delete_me.txt</a>"
+    assert_includes last_response.body, "<button type=\"submit\">Delete delete_me.txt</button>"
+  end
+
+  def test_deletion
+    create_document "delete_me.txt"
+    get "/"
+    assert_equal 200, last_response.status
+
+    assert_includes last_response.body, "<a href=\"/delete_me.txt\">delete_me.txt</a>"
+
+    post "/delete/delete_me.txt"
+    assert_equal 302, last_response.status
+    get last_response["Location"]
+    refute_includes last_response.body, "<a href=\"/delete_me.txt\">delete_me.txt</a>"
+  end
 end

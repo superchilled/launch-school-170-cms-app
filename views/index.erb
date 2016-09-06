@@ -7,7 +7,12 @@
 <% end %>
 <ul>
   <% @files.each do |filename| %>
-    <li><a href="/<%= filename %>"><%= filename %></a> | <a href="/edit/<%= filename %>">Edit</a></li>
+    <li>
+      <a href="/<%= filename %>"><%= filename %></a> | <a href="/edit/<%= filename %>">Edit</a>
+      <form class="inline" action="/delete/<%= filename %>" method="post">
+        <button type="submit">Delete <%= filename %></button>
+      </form>
+    </li>
   <% end %>
 </ul>
 <a href="/new">New document</a>
