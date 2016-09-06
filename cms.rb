@@ -11,6 +11,14 @@ configure do
   set :session_secret, 'secret'
 end
 
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    'test/data'
+  else
+    'data'
+  end
+end
+
 helpers do
   def render_markdown(content)
     markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
@@ -23,7 +31,7 @@ helpers do
 end
 
 get '/' do
-  @files = get_files('data')
+  @files = get_files(data_path)
   @files.sort!
 
   erb :index
@@ -31,10 +39,10 @@ end
 
 get "/:filename" do
   filename = params['filename']
-  @files = get_files('data')
+  @files = get_files(data_path)
 
   if @files.include?(filename)
-    @file_content = File.read("data/#{filename}")
+    @file_content = File.read("#{data_path}/#{filename}")
     @file_content = render_markdown(@file_content) if filename.include?('.md')
 
     headers "Content-Type" => 'text/plain'
@@ -47,10 +55,10 @@ end
 
 get "/edit/:filename" do
   @filename = params['filename']
-  @files = get_files('data')
+  @files = get_files(data_path)
 
   if @files.include?(@filename)
-    @file_content = File.read("data/#{@filename}")
+    @file_content = File.read("#{data_path}/#{@filename}")
 
     erb :edit, layout: :layout
   else
@@ -60,7 +68,7 @@ get "/edit/:filename" do
 end
 
 post "/edit/:filename" do
-  File.write("data/#{params['filename']}", params['content'])
+  File.write("#{data_path}/#{params['filename']}", params['content'])
   session[:success] = "#{params['filename']} was updated."
   redirect "/"
 end

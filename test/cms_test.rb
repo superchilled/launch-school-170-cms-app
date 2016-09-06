@@ -6,6 +6,7 @@ require "minitest/autorun"
 require "minitest/reporters"
 Minitest::Reporters.use!
 require "rack/test"
+require "fileutils"
 
 require_relative "../cms.rb"
 
@@ -16,7 +17,25 @@ class AppTest < Minitest::Test
     Sinatra::Application
   end
 
+  def setup
+    FileUtils.mkdir_p(data_path)
+  end
+
+  def teardown
+    FileUtils.mkdir_p(data_path)
+  end
+
+  def create_document(name, content = "")
+    File.open(File.join(data_path, name), "w") do |file|
+      file.write(content)
+    end
+  end
+
   def test_index
+    create_document "about.txt"
+    create_document "changes.txt"
+    create_document "history.txt"
+
     get "/"
 
     assert_equal 200, last_response.status
@@ -26,6 +45,8 @@ class AppTest < Minitest::Test
   end
 
   def test_filepage
+    create_document "about.txt", "This is a file-based CMS application built with Ruby and Sinatra."
+
     get "/about.txt"
 
     assert_equal 200, last_response.status
@@ -33,6 +54,7 @@ class AppTest < Minitest::Test
   end
 
   def test_non_existent
+    # skip
     get "/nonexistent.txt"
 
     get last_response["Location"]
@@ -45,16 +67,16 @@ class AppTest < Minitest::Test
   end
 
   def test_markdown_rendering
+    # skip
+    create_document "markdown.md", "# This is a h1"
     get "/markdown.md"
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, "<h1>This is a h1</h1>"
-    assert_includes last_response.body, "<h2>This is a h2</h2>"
-    assert_includes last_response.body, "<h3>This is a h3</h3>"
-    assert_includes last_response.body, "<p>This is a paragraph</p>"
   end
 
   def test_edit_file
+    # skip
     get "/edit/markdown.md"
 
     assert_equal 200, last_response.status
@@ -62,7 +84,8 @@ class AppTest < Minitest::Test
   end
 
   def test_update_file
-    post "/edit/about.txt", content: "This is a file-based CMS application built with Ruby and Sinatra. Some new content"
+    # skip
+    post "/edit/about.txt", content: "Some new content"
 
     get last_response["Location"]
 
