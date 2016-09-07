@@ -146,4 +146,55 @@ class AppTest < Minitest::Test
     get last_response["Location"]
     refute_includes last_response.body, "<a href=\"/delete_me.txt\">delete_me.txt</a>"
   end
+
+  def test_signin_button
+    get "/"
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<button type=\"submit\">Sign In</button>"
+    refute_includes last_response.body, "<button type=\"submit\">Sign Out</button>"
+  end
+
+  def test_signin_page
+    get "/users/signin"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<input type=\"text\" name=\"username\""
+    assert_includes last_response.body, "<input type=\"password\" name=\"password\">"
+    assert_includes last_response.body, "<button type=\"submit\">Sign in</button>"
+  end
+
+  def test_valid_signin
+    post "/users/signin", username: 'admin', password: 'secret'
+    assert_equal 302, last_response.status
+    get last_response["Location"]
+    refute_includes last_response.body, "<button type=\"submit\">Sign In</button>"
+    assert_includes last_response.body, "You are signed in as admin"
+    assert_includes last_response.body, "<button type=\"submit\">Sign Out</button>"
+    assert_includes last_response.body, "<p class=\"message\">Welcome!</p>"
+    get "/"
+    refute_includes last_response.body, "<p class=\"message\">Welcome!</p>"
+  end
+
+  def test_invalid_signin
+    post "/users/signin", username: 'admin', password: 'wrong-secret'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<input type=\"text\" name=\"username\""
+    assert_includes last_response.body, "<input type=\"password\" name=\"password\">"
+    assert_includes last_response.body, "<button type=\"submit\">Sign in</button>"
+    assert_includes last_response.body, "<p class=\"message\">Invalid Credentials</p>"
+    assert_includes last_response.body, "<input type=\"text\" name=\"username\" value=\"admin\">"
+  end
+
+  def test_sign_out
+    post "/users/signin", username: 'admin', password: 'secret'
+    assert_equal 302, last_response.status
+    get last_response["Location"]
+    assert_includes last_response.body, "<p class=\"message\">Welcome!</p>"
+
+    post "/users/signout"
+    assert_equal 302, last_response.status
+    get last_response["Location"]
+    assert_includes last_response.body, "<p class=\"message\">You have been signed out.</p>"
+    assert_includes last_response.body, "<button type=\"submit\">Sign In</button>"
+  end
 end

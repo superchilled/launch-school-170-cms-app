@@ -16,3 +16,13 @@
   <% end %>
 </ul>
 <a href="/new">New document</a>
+<% if session[:username] %>
+  <p>You are signed in as <%= session[:username] %></p>
+  <form action="/users/signout" method="post">
+    <button type="submit">Sign Out</button>
+  </form>
+<% else %>
+  <form action="/users/signin" method="get">
+    <button type="submit">Sign In</button>
+  </form>
+<% end %>

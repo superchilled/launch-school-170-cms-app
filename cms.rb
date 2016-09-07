@@ -19,6 +19,8 @@ def data_path
   end
 end
 
+USERS = {'admin' => 'secret'}
+
 helpers do
   def render_markdown(content)
     markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
@@ -92,5 +94,28 @@ end
 post "/delete/:filename" do
   File.delete("#{data_path}/#{params['filename']}")
   session[:success] = "#{params['filename']} was deleted."
+  redirect "/"
+end
+
+get "/users/signin" do
+  erb :signin, layout: :layout
+end
+
+post "/users/signin" do
+  @username = params['username']
+  password = params['password']
+  if USERS[@username] == password
+    session[:username] = @username
+    session[:success] = "Welcome!"
+    redirect "/"
+  else
+    session[:error] = "Invalid Credentials"
+    erb :signin, layout: :layout
+  end
+end
+
+post "/users/signout" do
+  session.delete(:username)
+  session[:success] = "You have been signed out."
   redirect "/"
 end
