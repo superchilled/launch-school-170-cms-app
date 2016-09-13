@@ -65,11 +65,11 @@ class AppTest < Minitest::Test
     # skip
     get "/nonexistent.txt"
 
-    assert_equal session[:error], "nonexistent.txt does not exist."
+    assert_equal "nonexistent.txt does not exist.", session[:error]
 
     get "/"
 
-    refute_equal session[:error], "nonexistent.txt does not exist."
+    refute_equal "nonexistent.txt does not exist.", session[:error]
   end
 
   def test_markdown_rendering
@@ -101,11 +101,11 @@ class AppTest < Minitest::Test
 
     post "/edit/about.txt", { content: "Some new content" }, admin_session
 
-    assert_equal session[:success], "about.txt was updated."
+    assert_equal "about.txt was updated.", session[:success]
 
     get "/"
 
-    refute_equal session[:success], "about.txt was updated."
+    refute_equal "about.txt was updated.", session[:success]
 
     get "about.txt"
     assert_equal 200, last_response.status
@@ -129,7 +129,7 @@ class AppTest < Minitest::Test
     assert_equal "You must be signed in to do that.", session[:error]
 
     post "/new", { filename: "somefile.md" }, admin_session 
-    assert_equal session[:success], "somefile.md has been created."
+    assert_equal "somefile.md has been created.", session[:success]
     get last_response["Location"]
     assert_includes last_response.body, "somefile.md"
     
@@ -141,7 +141,7 @@ class AppTest < Minitest::Test
 
   def test_no_filename
     post "/new", {}, admin_session
-    assert_equal session[:error], "A name is required."
+    assert_equal "A name is required.", session[:error]
   end
 
   def test_deletion_button
@@ -166,10 +166,10 @@ class AppTest < Minitest::Test
 
     post "/delete/delete_me.txt", {}, admin_session 
     assert_equal 302, last_response.status
-    assert_equal session[:success], "delete_me.txt was deleted."
+    assert_equal "delete_me.txt was deleted.", session[:success]
 
     get last_response["Location"]
-    refute_includes last_response.body, "<a href=\"/delete_me.txt\">delete_me.txt</a>"
+    refute_includes "<a href=\"/delete_me.txt\">delete_me.txt</a>", last_response.body
   end
 
   def test_signin_button
@@ -191,15 +191,15 @@ class AppTest < Minitest::Test
   def test_valid_signin
     post "/users/signin", username: 'admin', password: 'secret'
     assert_equal 302, last_response.status
-    assert_equal session[:success], "Welcome!"
+    assert_equal "Welcome!", session[:success]
     assert_equal "admin", session[:username]
     get last_response["Location"]
-    refute_includes last_response.body, "<button type=\"submit\">Sign In</button>"
+    refute_includes "<button type=\"submit\">Sign In</button>", last_response.body
     assert_includes last_response.body, "You are signed in as admin"
     assert_includes last_response.body, "<button type=\"submit\">Sign Out</button>"
     
     get "/"
-    refute_equal session[:success], "Welcome!"
+    refute_equal "Welcome!", session[:success]
   end
 
   def test_invalid_signin
@@ -207,7 +207,7 @@ class AppTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, "<input type=\"text\" name=\"username\""
-    assert_includes last_response.body, "<input type=\"password\" name=\"password\">"
+    assert_includes last_response.body, "<input type=\"password\" name=\"password\">" 
     assert_includes last_response.body, "<button type=\"submit\">Sign in</button>"
     assert_includes last_response.body, "<p class=\"message\">Invalid Credentials</p>"
     assert_includes last_response.body, "<input type=\"text\" name=\"username\" value=\"admin\">"
@@ -216,11 +216,11 @@ class AppTest < Minitest::Test
   def test_sign_out
     post "/users/signin", username: 'admin', password: 'secret'
     assert_equal 302, last_response.status
-    assert_equal session[:success], "Welcome!"
+    assert_equal "Welcome!", session[:success]
 
     post "/users/signout"
     assert_equal 302, last_response.status
-    assert_equal session[:success],"You have been signed out."
+    assert_equal "You have been signed out.", session[:success]
 
     get "/"
     assert_includes last_response.body, "<button type=\"submit\">Sign In</button>"
