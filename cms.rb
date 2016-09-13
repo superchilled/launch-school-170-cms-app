@@ -5,6 +5,7 @@ require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'sinatra/flash'
 require 'redcarpet'
+require 'yaml'
 
 configure do
   enable :sessions
@@ -19,7 +20,16 @@ def data_path
   end
 end
 
-USERS = {'admin' => 'secret'}
+def get_users
+  users_file_path = if ENV["RACK_ENV"] == "test"
+    "test/users.yml"
+  else
+    "users.yml"
+  end
+  YAML.load(File.read(users_file_path))
+end
+
+USERS = get_users
 
 helpers do
   def render_markdown(content)
