@@ -29,6 +29,10 @@ class AppTest < Minitest::Test
     last_request.env["rack.session"]
   end
 
+  def admin_session
+    { "rack.session" => { username: "admin" } }
+  end
+
   def create_document(name, content = "")
     File.open(File.join(data_path, name), "w") do |file|
       file.write(content)
@@ -79,7 +83,11 @@ class AppTest < Minitest::Test
 
   def test_edit_file
     # skip
-    get "/edit/markdown.md"
+    get "/edit/markdown.md", {}
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:error]
+
+    get "/edit/markdown.md", {}, admin_session 
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, "<textarea name=\"content\" cols=\"80\" rows=\"20\"># This is a h1"
@@ -87,7 +95,11 @@ class AppTest < Minitest::Test
 
   def test_update_file
     # skip
-    post "/edit/about.txt", content: "Some new content"
+    post "/edit/about.txt", { content: "Some new content" }
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:error]
+
+    post "/edit/about.txt", { content: "Some new content" }, admin_session
 
     assert_equal session[:success], "about.txt was updated."
 
@@ -102,14 +114,21 @@ class AppTest < Minitest::Test
 
   def test_new_file
     get "/new"
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:error]
 
+    get "/new", {}, admin_session
     assert_equal 200, last_response.status
     assert_includes last_response.body, "<label for=\"filename\">New document name</label>"
     assert_includes last_response.body, "<button type=\"submit\">Create Document</button>"
   end
 
   def test_create_file
-    post "/new", filename: "somefile.md"
+    post "/new", { filename: "somefile.md" }
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:error]
+
+    post "/new", { filename: "somefile.md" }, admin_session 
     assert_equal session[:success], "somefile.md has been created."
     get last_response["Location"]
     assert_includes last_response.body, "somefile.md"
@@ -121,7 +140,7 @@ class AppTest < Minitest::Test
   end
 
   def test_no_filename
-    post "/new"
+    post "/new", {}, admin_session
     assert_equal session[:error], "A name is required."
   end
 
@@ -142,6 +161,10 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, "<a href=\"/delete_me.txt\">delete_me.txt</a>"
 
     post "/delete/delete_me.txt"
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:error]
+
+    post "/delete/delete_me.txt", {}, admin_session 
     assert_equal 302, last_response.status
     assert_equal session[:success], "delete_me.txt was deleted."
 

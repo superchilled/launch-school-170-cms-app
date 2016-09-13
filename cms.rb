@@ -30,6 +30,16 @@ helpers do
   def get_files(directory)
     Dir.glob("#{directory}/*").map { |file| File.basename(file) }
   end
+
+  def signed_in?
+    !!session[:username]
+  end
+
+  def validate_user_status
+    return if signed_in?
+    session[:error] = "You must be signed in to do that."
+    redirect "/"
+  end
 end
 
 get '/' do
@@ -40,10 +50,12 @@ get '/' do
 end
 
 get "/new" do
+  validate_user_status
   erb :new, layout: :layout
 end
 
 post "/new" do
+  validate_user_status
   filename = params['filename'].to_s
   if filename.size == 0
     session[:error] = "A name is required."
@@ -72,6 +84,7 @@ get "/:filename" do
 end
 
 get "/edit/:filename" do
+  validate_user_status
   @filename = params['filename']
   @files = get_files(data_path)
 
@@ -86,12 +99,14 @@ get "/edit/:filename" do
 end
 
 post "/edit/:filename" do
+  validate_user_status
   File.write("#{data_path}/#{params['filename']}", params['content'])
   session[:success] = "#{params['filename']} was updated."
   redirect "/"
 end
 
 post "/delete/:filename" do
+  validate_user_status
   File.delete("#{data_path}/#{params['filename']}")
   session[:success] = "#{params['filename']} was deleted."
   redirect "/"
