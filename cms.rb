@@ -6,6 +6,7 @@ require 'tilt/erubis'
 require 'sinatra/flash'
 require 'redcarpet'
 require 'yaml'
+require 'bcrypt'
 
 configure do
   enable :sessions
@@ -129,7 +130,7 @@ end
 post "/users/signin" do
   @username = params['username']
   password = params['password']
-  if USERS[@username] == password
+  if BCrypt::Password.new(USERS[@username]) == password
     session[:username] = @username
     session[:success] = "Welcome!"
     redirect "/"

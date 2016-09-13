@@ -8,3 +8,4 @@ gem "minitest"
 gem "minitest-reporters"
 gem "sinatra-flash"
 gem "redcarpet"
+gem 'bcrypt'

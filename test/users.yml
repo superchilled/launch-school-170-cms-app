@@ -1,3 +1,3 @@
-admin: secret
-karl: supersecret
-keri: blue
+admin: $2a$10$bD/67vB.U1.0OqdrbrUHxO4kIb3jNQEI/Lq8iyvb.vRlzYCk4dEJC
+karl: $2a$10$49slE0MRvQYAMgg8qa7nw.PLIA/e582Btd72cg8nfrf0Fdcy3ffCW
+keri: $2a$10$tmkOs9sAQCpNIDCBi0IR/.gQD5apWezLwsx3rh4ytTY0wTWXc2JOu
