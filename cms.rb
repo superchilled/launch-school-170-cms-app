@@ -8,6 +8,8 @@ require 'redcarpet'
 require 'yaml'
 require 'bcrypt'
 
+VALID_FILE_EXTENSIONS = ['txt', 'md']
+
 configure do
   enable :sessions
   set :session_secret, 'secret'
@@ -51,6 +53,20 @@ helpers do
     session[:error] = "You must be signed in to do that."
     redirect "/"
   end
+
+  def filename_error?(filename)
+    if filename.size == 0
+      "A name is required."
+    elsif filename.split('.').size == 1
+      "Filename requires an extension."
+    elsif filename.split('.').size > 2
+      "Filename must not contain a '.'."
+    elsif !VALID_FILE_EXTENSIONS.include?(filename.split('.').last)
+      "File extension invalid. Please use #{VALID_FILE_EXTENSIONS.join(', ')}"
+    else
+      false
+    end
+  end
 end
 
 get '/' do
@@ -68,8 +84,9 @@ end
 post "/new" do
   validate_user_status
   filename = params['filename'].to_s
-  if filename.size == 0
-    session[:error] = "A name is required."
+  filename_error = filename_error?(filename)
+  if filename_error
+    session[:error] = filename_error
     redirect "/new"
   else
     File.open(File.join(data_path, params['filename']), "w")
