@@ -53,6 +53,20 @@ helpers do
     session[:error] = "You must be signed in to do that."
     redirect "/"
   end
+
+  def filename_error?(filename)
+    if filename.size == 0
+      "A name is required."
+    elsif filename.split('.').size == 1
+      "Filename requires an extension."
+    elsif filename.split('.').size > 2
+      "Filename must not contain a '.'."
+    elsif !VALID_FILE_EXTENSIONS.include?(filename.split('.').last)
+      "File extension invalid. Please use #{VALID_FILE_EXTENSIONS.join(', ')}"
+    else
+      false
+    end
+  end
 end
 
 get '/' do
@@ -70,17 +84,9 @@ end
 post "/new" do
   validate_user_status
   filename = params['filename'].to_s
-  if filename.size == 0
-    session[:error] = "A name is required."
-    redirect "/new"
-  elsif filename.split('.').size == 1
-    session[:error] = "Filename requires an extension."
-    redirect "/new"
-  elsif filename.split('.').size > 2
-    session[:error] = "Filename must not contain a '.'."
-    redirect "/new"
-  elsif !VALID_FILE_EXTENSIONS.include?(filename.split('.').last)
-    session[:error] = "File extension invalid. Please use #{VALID_FILE_EXTENSIONS.join(', ')}"
+  filename_error = filename_error?(filename)
+  if filename_error
+    session[:error] = filename_error
     redirect "/new"
   else
     File.open(File.join(data_path, params['filename']), "w")
