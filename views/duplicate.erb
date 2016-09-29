@@ -1,0 +1,10 @@
+<% if session[:error] %>
+    <p class="message"><%= session.delete(:error) %></p>
+<% end %>
+<form action="/duplicate" method="post">
+  <label for="filename">New document name</label>
+  <input type="hidden" name="origin-filename" value="<%= @origin_filename %>">
+  <input type="text" name="filename">
+  <button type="submit">Create Document</button>
+</form>
+<p>Note: valid file extensions are: <%= VALID_FILE_EXTENSIONS.join(', ') %></p>
