@@ -8,6 +8,8 @@ require 'redcarpet'
 require 'yaml'
 require 'bcrypt'
 
+VALID_FILE_EXTENSIONS = ['txt', 'md']
+
 configure do
   enable :sessions
   set :session_secret, 'secret'
@@ -70,6 +72,15 @@ post "/new" do
   filename = params['filename'].to_s
   if filename.size == 0
     session[:error] = "A name is required."
+    redirect "/new"
+  elsif filename.split('.').size == 1
+    session[:error] = "Filename requires an extension."
+    redirect "/new"
+  elsif filename.split('.').size > 2
+    session[:error] = "Filename must not contain a '.'."
+    redirect "/new"
+  elsif !VALID_FILE_EXTENSIONS.include?(filename.split('.').last)
+    session[:error] = "File extension invalid. Please use #{VALID_FILE_EXTENSIONS.join(', ')}"
     redirect "/new"
   else
     File.open(File.join(data_path, params['filename']), "w")

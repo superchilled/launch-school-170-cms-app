@@ -144,6 +144,21 @@ class AppTest < Minitest::Test
     assert_equal "A name is required.", session[:error]
   end
 
+  def test_no_file_extension
+    post "/new", { filename: "somefile" }, admin_session
+    assert_equal "Filename requires an extension.", session[:error]
+  end
+
+  def test_dot_in_filename
+    post "/new", { filename: "some.file.md" }, admin_session
+    assert_equal "Filename must not contain a '.'.", session[:error]
+  end
+
+  def test_invalid_file_extension
+    post "/new", { filename: "somefile.php" }, admin_session
+    assert_equal "File extension invalid. Please use #{VALID_FILE_EXTENSIONS.join(', ')}", session[:error]
+  end
+
   def test_deletion_button
     create_document "delete_me.txt"
     get "/"
