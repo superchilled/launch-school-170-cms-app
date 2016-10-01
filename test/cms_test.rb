@@ -159,6 +159,36 @@ class AppTest < Minitest::Test
     assert_equal "File extension invalid. Please use #{VALID_FILE_EXTENSIONS.join(', ')}", session[:error]
   end
 
+  def test_duplicate
+    get "/duplicate", { origin_filename: "somefile.txt" }, admin_session
+    assert_includes last_response.body, "somefile.txt"
+  end
+
+  def test_duplicate_no_filename
+    post "/duplicate", {}, admin_session
+    assert_includes last_response.body, "A name is required."
+  end
+
+  def test_duplicate_no_file_extension
+    post "/duplicate", { filename: "somefile" }, admin_session
+    assert_includes last_response.body, "Filename requires an extension."
+  end
+
+  def test_duplicate_dot_in_filename
+    post "/duplicate", { filename: "some.file.md" }, admin_session
+    assert_includes last_response.body, "Filename must not contain a '.'."
+  end
+
+  def test_duplicate_invalid_file_extension
+    post "/duplicate", { filename: "somefile.php" }, admin_session
+    assert_includes last_response.body, "File extension invalid. Please use #{VALID_FILE_EXTENSIONS.join(', ')}", session[:error]
+  end
+
+  def test_duplicate_valid
+    post "/duplicate", { origin_filename: "about.txt", filename: "some_file.md" }, admin_session
+    assert_equal "some_file.md has been created.", session[:success]
+  end
+
   def test_deletion_button
     create_document "delete_me.txt"
     get "/"

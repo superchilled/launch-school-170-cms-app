@@ -95,6 +95,30 @@ post "/new" do
   end
 end
 
+get "/duplicate" do
+  validate_user_status
+  @origin_filename = params['origin_filename']
+  erb :duplicate, layout: :layout
+end
+
+post "/duplicate" do
+  validate_user_status
+  @origin_filename = params['origin_filename']
+  new_filename = params['filename'].to_s
+  filename_error = filename_error?(new_filename)
+  if filename_error
+    session[:error] = filename_error
+    erb :duplicate, layout: :layout
+  else
+    file_content = File.read("#{data_path}/#{@origin_filename}")
+    File.open(File.join(data_path, new_filename), "w")
+    File.write("#{data_path}/#{new_filename}", file_content)
+    session[:success] = "#{new_filename} has been created."
+    redirect "/"
+  end
+end
+
+
 get "/:filename" do
   filename = params['filename']
   @files = get_files(data_path)
