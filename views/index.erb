@@ -10,7 +10,7 @@
     <li>
       <a href="/<%= filename %>"><%= filename %></a> | <a href="/edit/<%= filename %>">Edit</a>
       <form class="inline" action="/duplicate" method="get">
-        <input type="hidden" name="origin-filename" value="<%= filename %>">
+        <input type="hidden" name="origin_filename" value="<%= filename %>">
         <button type="submit">Duplicate <%= filename %></button>
       </form>
       <form class="inline" action="/delete/<%= filename %>" method="post">

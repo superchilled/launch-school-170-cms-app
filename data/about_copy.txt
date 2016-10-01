@@ -1,1 +1,0 @@
-This is a file-based CMS application built with Ruby and Sinatra.

@@ -97,13 +97,13 @@ end
 
 get "/duplicate" do
   validate_user_status
-  @origin_filename = params['origin-filename']
+  @origin_filename = params['origin_filename']
   erb :duplicate, layout: :layout
 end
 
 post "/duplicate" do
   validate_user_status
-  @origin_filename = params['origin-filename']
+  @origin_filename = params['origin_filename']
   new_filename = params['filename'].to_s
   filename_error = filename_error?(new_filename)
   if filename_error
