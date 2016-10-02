@@ -23,6 +23,14 @@ def data_path
   end
 end
 
+def users_path
+  if ENV["RACK_ENV"] == "test"
+    'test/'
+  else
+    '/'
+  end
+end
+
 def get_users
   users_file_path = if ENV["RACK_ENV"] == "test"
     "test/users.yml"
@@ -31,8 +39,6 @@ def get_users
   end
   YAML.load(File.read(users_file_path))
 end
-
-USERS = get_users
 
 helpers do
   def render_markdown(content)
@@ -171,7 +177,8 @@ end
 post "/users/signin" do
   @username = params['username']
   password = params['password']
-  if BCrypt::Password.new(USERS[@username]) == password
+  users = get_users
+  if BCrypt::Password.new(users[@username]) == password
     session[:username] = @username
     session[:success] = "Welcome!"
     redirect "/"
@@ -184,5 +191,20 @@ end
 post "/users/signout" do
   session.delete(:username)
   session[:success] = "You have been signed out."
+  redirect "/"
+end
+
+get "/users/signup" do
+  erb :signup, layout: :layout
+end
+
+post "/users/signup" do
+  username = params['username']
+  password = BCrypt::Password.create(params['password'])
+  File.open("#{users_path}users.yml", 'a') do |file|
+    file.puts "#{username}: #{password}"
+  end
+  session[:username] = username
+  session[:success] = "User account created. Welcome, #{username}!"
   redirect "/"
 end

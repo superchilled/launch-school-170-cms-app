@@ -270,4 +270,17 @@ class AppTest < Minitest::Test
     get "/"
     assert_includes last_response.body, "<button type=\"submit\">Sign In</button>"
   end
+
+  def test_sign_up
+    post "/users/signup", username: 'testuser', password: 'testpass'
+    assert_equal 302, last_response.status
+    assert_equal "User account created. Welcome, testuser!", session[:success]
+
+    post "/users/signout"
+
+    post "/users/signin", username: 'testuser', password: 'testpass'
+    assert_equal 302, last_response.status
+    assert_equal "Welcome!", session[:success]
+    assert_equal "testuser", session[:username]
+  end
 end
