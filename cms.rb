@@ -23,6 +23,14 @@ def data_path
   end
 end
 
+def image_path
+  if ENV["RACK_ENV"] == "test"
+    'test/images/'
+  else
+    'public/images/'
+  end
+end
+
 def users_path
   if ENV["RACK_ENV"] == "test"
     'test/'
@@ -87,6 +95,18 @@ get "/new" do
   erb :new, layout: :layout
 end
 
+get "/upload" do
+  validate_user_status
+  erb :upload, layout: :layout
+end
+
+post "/upload" do
+  @file = filename = params['file']
+  # new_image = File.open(File.join(image_path, 'image.jpg'), "w")
+
+  erb :new, layout: :layout
+end
+
 post "/new" do
   validate_user_status
   filename = params['filename'].to_s
@@ -145,6 +165,7 @@ get "/edit/:filename" do
   validate_user_status
   @filename = params['filename']
   @files = get_files(data_path)
+  @images = get_files(image_path)
 
   if @files.include?(@filename)
     @file_content = File.read("#{data_path}/#{@filename}")

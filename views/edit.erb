@@ -3,3 +3,17 @@
   <textarea name="content" cols="80" rows="20"><%= @file_content %></textarea>
   <button type="submit">Save Changes</button>
 </form>
+<h2>Available Images</h2>
+<% if @images.size == 0 %>
+  <p>There are currently no images available for use.</p>
+<% else %>
+  <ul>
+    <% @images.each do |image| %>
+      <li>
+        <p><%= image %></p>
+        <img src="/images/<%= image %>" width="100px">
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+<a href="/upload">Upload a new image</a>
