@@ -97,14 +97,21 @@ end
 
 get "/upload" do
   validate_user_status
+  @filename = params['filename']
+  @file_content = params['file_content']
   erb :upload, layout: :layout
 end
 
 post "/upload" do
-  @file = filename = params['file']
-  # new_image = File.open(File.join(image_path, 'image.jpg'), "w")
+  @file = params['file']
+  @filename = params['filename']
+  @images = get_files(image_path)
+  @file_content = params['file_content']
+  File.open(image_path + @file[:filename], "w") do |file|
+    file.write(@file[:tempfile].read)
+  end
 
-  erb :new, layout: :layout
+  erb :edit, layout: :layout
 end
 
 post "/new" do
