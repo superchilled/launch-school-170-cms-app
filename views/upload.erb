@@ -1,0 +1,7 @@
+<form action="/upload" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="filename" value="<%= @filename %>">
+  <input type="hidden" name="file_content" value="<%= @file_content %>">
+  <label for="file">Image path</label>
+  <input type="file" name="file">
+  <button type="submit">Upload Image</button>
+</form>

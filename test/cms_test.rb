@@ -283,4 +283,25 @@ class AppTest < Minitest::Test
     assert_equal "Welcome!", session[:success]
     assert_equal "testuser", session[:username]
   end
+
+  def test_file_upload_page
+    get "/upload", { filename: "somefile.md", file_content: "Hello..." }, admin_session
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<input type=\"hidden\" name=\"filename\" value=\"somefile.md\">"
+    assert_includes last_response.body, "<input type=\"hidden\" name=\"file_content\" value=\"Hello...\">"
+  end
+
+  def file_upload
+    file_to_upload = '/home/karl/Pictures/lol-dog.jpg'
+    uploaded_file = '/home/karl/web_dev/learning/launch_school/repos/ls_170_cms_app/test/images/lol-dog.jpg'
+
+    post "upload", { 
+      file: Rack::Test::UploadedFile.new(file_to_upload, 'image/jpeg'),
+      filename: "somefile.md", 
+      file_content: "Hello..." 
+      }, admin_session
+
+    assert_equal 201, last_response.status
+    assert_includes last_response.body, "<p>/images/lol-dog.jpg</p>"
+  end
 end

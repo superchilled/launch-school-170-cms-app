@@ -5,3 +5,5 @@
 This is a paragraph
 
 This is another paragraph
+
+![this is an image](/images/sky_stars_background_points_85061_1920x1080.jpg "this is an image")

@@ -3,3 +3,25 @@
   <textarea name="content" cols="80" rows="20"><%= @file_content %></textarea>
   <button type="submit">Save Changes</button>
 </form>
+<h2>Available Images</h2>
+<p>Images can be used in markdown files. To use an image, use the following markdown, replacing
+'path/to/image' with the relevant image path:<br />
+![alt text](path/to/image "Title Text")</p>
+<form action="/upload" method="get">
+  <input type="hidden" name="filename" value="<%= @filename %>">
+  <input type="hidden" name="file_content" value="<%= @file_content %>">
+  <button type="submit">Upload a new image</button>
+</form>
+<% if @images.size == 0 %>
+  <p>There are currently no images available for use.</p>
+<% else %>
+  <ul>
+    <% @images.each do |image| %>
+      <li>
+        <p>/images/<%= image %></p>
+        <img src="/images/<%= image %>" width="100px">
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
