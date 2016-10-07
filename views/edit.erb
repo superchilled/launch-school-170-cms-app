@@ -1,6 +1,8 @@
 <form action="/edit/<%= @filename %>" method="post">
   <label for="content">Edit content of <%= @filename %></label>
   <textarea name="content" cols="80" rows="20"><%= @file_content %></textarea>
+  <label for="commit_message">Overview of changes</label>
+  <input type="text" name="commit_message" value="Updating <%= @filename %>">
   <button type="submit">Save Changes</button>
 </form>
 <h2>Available Images</h2>
