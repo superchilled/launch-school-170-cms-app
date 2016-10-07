@@ -8,7 +8,7 @@ require 'redcarpet'
 require 'yaml'
 require 'bcrypt'
 
-VALID_FILE_EXTENSIONS = ['txt', 'md']
+VALID_FILE_EXTENSIONS = ['txt', 'md'].freeze
 
 configure do
   enable :sessions
@@ -81,6 +81,13 @@ helpers do
       false
     end
   end
+
+  def run_git_sequence(filename, message)
+    Dir.chdir(data_path) {
+      system("git add #{filename}")
+      system("git commit -m \'#{message}\'")
+    }
+  end
 end
 
 get '/' do
@@ -124,6 +131,7 @@ post "/new" do
   else
     File.open(File.join(data_path, params['filename']), "w")
     session[:success] = "#{params['filename']} has been created."
+    run_git_sequence(filename, "Adding file #{filename}")
     redirect "/"
   end
 end
@@ -187,6 +195,7 @@ end
 post "/edit/:filename" do
   validate_user_status
   File.write("#{data_path}/#{params['filename']}", params['content'])
+  run_git_sequence(params['filename'], params['commit_message'])
   session[:success] = "#{params['filename']} was updated."
   redirect "/"
 end
